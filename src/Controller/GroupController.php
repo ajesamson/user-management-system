@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Group;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,11 +29,12 @@ class GroupController extends AbstractController
     /**
      * @Route("/add", name="groups_add", methods={"POST"})
      */
-    public function add(Request $request)
+    public function add(Request $request, ValidatorInterface $validator)
     {
         /** @var Serializer $serializer */
         $serializer = $this->get('serializer');
         $group = $serializer->deserialize($request->getContent(), Group::class, 'json');
+        $validator->validate($group);
 
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($group);

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Group;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,11 +30,12 @@ class UserController extends AbstractController
     /**
      * @Route("/add", name="users_add", methods={"POST"})
      */
-    public function add(Request $request)
+    public function add(Request $request, ValidatorInterface $validator)
     {
         /** @var Serializer $serializer */
         $serializer = $this->get('serializer');
         $users = $serializer->deserialize($request->getContent(), User::class, 'json');
+        $validator->validate($users);
 
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($users);
