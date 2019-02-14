@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Group;
+use App\Traits\ResponseTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,16 @@ use Symfony\Component\Serializer\Serializer;
 class GroupController extends AbstractController
 {
     /**
+     * @var string
+     */
+    private static $invalidGroup = 'Invalid user group id';
+
+    /**
+     * @var string
+     */
+    private static $usersExist = 'Group has existing user';
+
+    /**
      * @Route("/", name="groups_index", methods={"GET"})
      */
     public function index()
@@ -23,7 +34,7 @@ class GroupController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $groups = $entityManager->getRepository(Group::class)->findAll();
 
-        return $this->json($groups);
+        return $this->json(ResponseTrait::successResponse($groups));
     }
 
     /**
@@ -40,7 +51,7 @@ class GroupController extends AbstractController
         $entityManager->persist($group);
         $entityManager->flush();
 
-        return $this->json($group, Response::HTTP_CREATED);
+        return $this->json(ResponseTrait::successResponse($group, Response::HTTP_CREATED));
     }
 
     /**
@@ -52,24 +63,16 @@ class GroupController extends AbstractController
         $group = $entityManager->getRepository(Group::class)->find($id);
 
         if (!$group) {
-            return $this->json(
-                Response::$statusTexts[Response::HTTP_BAD_REQUEST],
-                Response::HTTP_BAD_REQUEST
-            );
+            return $this->json(ResponseTrait::errorResponse(self::$invalidGroup));
         }
 
         if (!$group->getUsers()->isEmpty()) {
-            return $this->json(
-                [
-                    'error' => 'Group has existing members!'
-                ],
-                Response::HTTP_BAD_REQUEST
-            );
+            return $this->json(ResponseTrait::errorResponse(self::$usersExist));
         }
 
         $entityManager->remove($group);
         $entityManager->flush();
 
-        return $this->json(null, Response::HTTP_NO_CONTENT);
+        return $this->json(ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT));
     }
 }

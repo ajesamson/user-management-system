@@ -5,6 +5,7 @@ namespace App\Controller;
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Group;
 use App\Entity\User;
+use App\Traits\ResponseTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +18,16 @@ use Symfony\Component\Serializer\Serializer;
 class UserController extends AbstractController
 {
     /**
+     * @var string
+     */
+    private static $invalidGroup = 'Invalid user group name';
+
+    /**
+     * @var string
+     */
+    private static $invalidUser = 'Invalid user id';
+
+    /**
      * @Route("/", name="users_index", methods={"GET"})
      */
     public function index()
@@ -24,7 +35,7 @@ class UserController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $user = $entityManager->getRepository(User::class)->findAll();
 
-        return $this->json($user);
+        return $this->json(ResponseTrait::successResponse($user));
     }
 
     /**
@@ -41,7 +52,7 @@ class UserController extends AbstractController
         $entityManager->persist($users);
         $entityManager->flush();
 
-        return $this->json($users, Response::HTTP_CREATED);
+        return $this->json(ResponseTrait::successResponse($users, Response::HTTP_CREATED));
     }
 
     /**
@@ -53,16 +64,13 @@ class UserController extends AbstractController
         $user = $entityManager->getRepository(User::class)->find($id);
 
         if (!$user) {
-            return $this->json(
-                Response::$statusTexts[Response::HTTP_BAD_REQUEST],
-                Response::HTTP_BAD_REQUEST
-            );
+            return $this->json(ResponseTrait::errorResponse(self::$invalidUser));
         }
 
         $entityManager->remove($user);
         $entityManager->flush();
 
-        return $this->json(null, Response::HTTP_NO_CONTENT);
+        return $this->json(ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT));
     }
 
     /**
@@ -74,10 +82,7 @@ class UserController extends AbstractController
         $user = $entityManager->getRepository(User::class)->find($id);
 
         if (!$user) {
-            return $this->json(
-                Response::$statusTexts[Response::HTTP_BAD_REQUEST],
-                Response::HTTP_BAD_REQUEST
-            );
+            return $this->json(ResponseTrait::errorResponse(self::$invalidUser));
         }
 
         /** @var Serializer $serializer */
@@ -86,16 +91,13 @@ class UserController extends AbstractController
         $group = $entityManager->getRepository(Group::class)->findOneBy(['name' => $userGroup->getName()]);
 
         if (!$group) {
-            return $this->json(
-                Response::$statusTexts[Response::HTTP_BAD_REQUEST],
-                Response::HTTP_BAD_REQUEST
-            );
+            return $this->json(ResponseTrait::errorResponse(self::$invalidGroup));
         }
 
         $user->addGroup($group);
         $entityManager->flush();
 
-        return $this->json($user, Response::HTTP_CREATED);
+        return $this->json(ResponseTrait::successResponse($user, Response::HTTP_CREATED));
     }
 
     /**
@@ -107,10 +109,7 @@ class UserController extends AbstractController
         $user = $entityManager->getRepository(User::class)->find($id);
 
         if (!$user) {
-            return $this->json(
-                Response::$statusTexts[Response::HTTP_BAD_REQUEST],
-                Response::HTTP_BAD_REQUEST
-            );
+            return $this->json(ResponseTrait::errorResponse(self::$invalidUser));
         }
 
         /** @var Serializer $serializer */
@@ -119,16 +118,13 @@ class UserController extends AbstractController
         $group = $entityManager->getRepository(Group::class)->findOneBy(['name' => $userGroup->getName()]);
 
         if (!$group) {
-            return $this->json(
-                Response::$statusTexts[Response::HTTP_BAD_REQUEST],
-                Response::HTTP_BAD_REQUEST
-            );
+            return $this->json(ResponseTrait::errorResponse(self::$invalidGroup));
         }
 
         $user->removeGroup($group);
         $entityManager->flush();
 
-        return $this->json(null, Response::HTTP_NO_CONTENT);
+        return $this->json(ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT));
     }
 
 }
