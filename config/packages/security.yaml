@@ -8,8 +8,8 @@ security:
         in_memory:
             memory:
                 users:
-                    internations:
-                        password: $2y$12$UIAJhny3yhizj1XPm.5x7.p7w2c0nyUbYiOdQyUL6gCLGgxsg6hAi
+                    others:
+                        password: $2y$12$YfMGPOwwUumGt.roEC/Kw.NRLtKZ/oKDYk4GtfZXaWPTVEwjUoFXi
                         roles: 'ROLE_USER'
                     admin:
                         password: $2y$12$1AFZ1RMaYGMqf9jxyv6x9u3syRglR5pDV0zRZPeFOdad10dGGFa96
