@@ -32,7 +32,7 @@ trait ResponseTrait
         return [
             'code' => $code,
             'status' => 'error',
-            'message' => $message || Response::$statusTexts[$code]
+            'message' => $message ?? Response::$statusTexts[$code]
         ];
     }
 }
