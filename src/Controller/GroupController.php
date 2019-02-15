@@ -34,7 +34,9 @@ class GroupController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $groups = $entityManager->getRepository(Group::class)->findAll();
 
-        return $this->json(ResponseTrait::successResponse($groups));
+        return $this->json(
+            ResponseTrait::successResponse($groups)
+        );
     }
 
     /**
@@ -44,6 +46,15 @@ class GroupController extends AbstractController
     {
         /** @var Serializer $serializer */
         $serializer = $this->get('serializer');
+        $requestBody = $request->getContent();
+
+        if (!$requestBody) {
+            return $this->json(
+                ResponseTrait::errorResponse(self::$invalidGroup),
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
         $group = $serializer->deserialize($request->getContent(), Group::class, 'json');
         $validator->validate($group);
 
@@ -51,7 +62,10 @@ class GroupController extends AbstractController
         $entityManager->persist($group);
         $entityManager->flush();
 
-        return $this->json(ResponseTrait::successResponse($group, Response::HTTP_CREATED));
+        return $this->json(
+            ResponseTrait::successResponse($group, Response::HTTP_CREATED),
+            Response::HTTP_CREATED
+        );
     }
 
     /**
@@ -63,16 +77,25 @@ class GroupController extends AbstractController
         $group = $entityManager->getRepository(Group::class)->find($id);
 
         if (!$group) {
-            return $this->json(ResponseTrait::errorResponse(self::$invalidGroup));
+            return $this->json(
+                ResponseTrait::errorResponse(self::$invalidGroup),
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         if (!$group->getUsers()->isEmpty()) {
-            return $this->json(ResponseTrait::errorResponse(self::$usersExist));
+            return $this->json(
+                ResponseTrait::errorResponse(self::$usersExist),
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $entityManager->remove($group);
         $entityManager->flush();
 
-        return $this->json(ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT));
+        return $this->json(
+            ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT),
+            Response::HTTP_NO_CONTENT
+        );
     }
 }

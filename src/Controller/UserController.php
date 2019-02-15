@@ -45,14 +45,26 @@ class UserController extends AbstractController
     {
         /** @var Serializer $serializer */
         $serializer = $this->get('serializer');
-        $users = $serializer->deserialize($request->getContent(), User::class, 'json');
+        $requestBody = $request->getContent();
+
+        if (!$requestBody) {
+            return $this->json(
+                ResponseTrait::errorResponse(self::$invalidUser),
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $users = $serializer->deserialize($requestBody, User::class, 'json');
         $validator->validate($users);
 
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($users);
         $entityManager->flush();
 
-        return $this->json(ResponseTrait::successResponse($users, Response::HTTP_CREATED));
+        return $this->json(
+            ResponseTrait::successResponse($users, Response::HTTP_CREATED),
+            Response::HTTP_CREATED
+        );
     }
 
     /**
@@ -64,13 +76,19 @@ class UserController extends AbstractController
         $user = $entityManager->getRepository(User::class)->find($id);
 
         if (!$user) {
-            return $this->json(ResponseTrait::errorResponse(self::$invalidUser));
+            return $this->json(
+                ResponseTrait::errorResponse(self::$invalidUser),
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $entityManager->remove($user);
         $entityManager->flush();
 
-        return $this->json(ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT));
+        return $this->json(
+            ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT),
+            Response::HTTP_NO_CONTENT
+        );
     }
 
     /**
@@ -80,9 +98,20 @@ class UserController extends AbstractController
     {
         $entityManager = $this->getDoctrine()->getManager();
         $user = $entityManager->getRepository(User::class)->find($id);
+        $responseBody = $request->getContent();
 
         if (!$user) {
-            return $this->json(ResponseTrait::errorResponse(self::$invalidUser));
+            return $this->json(
+                ResponseTrait::errorResponse(self::$invalidUser),
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        if (!$responseBody) {
+            return $this->json(
+                ResponseTrait::errorResponse(self::$invalidGroup),
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         /** @var Serializer $serializer */
@@ -91,17 +120,28 @@ class UserController extends AbstractController
         $group = $entityManager->getRepository(Group::class)->findOneBy(['name' => $userGroup->getName()]);
 
         if (!$group) {
-            return $this->json(ResponseTrait::errorResponse(self::$invalidGroup));
+            return $this->json(
+                ResponseTrait::errorResponse(self::$invalidGroup),
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $user->addGroup($group);
         $entityManager->flush();
 
-        return $this->json(ResponseTrait::successResponse($user, Response::HTTP_CREATED));
+        return $this->json(
+            ResponseTrait::successResponse($user, Response::HTTP_CREATED),
+            Response::HTTP_CREATED
+        );
     }
 
     /**
-     * @Route("/{id}/delete-group", name="users_delete_group", methods={"DELETE"}, requirements={"id":"\d+"})
+     * @Route(
+     *     "/{id}/delete-group",
+     *     name="users_delete_group",
+     *     methods={"DELETE"},
+     *     requirements={"id":"\d+"}
+     *)
      */
     public function deleteGroup(Request $request, $id)
     {
@@ -109,7 +149,10 @@ class UserController extends AbstractController
         $user = $entityManager->getRepository(User::class)->find($id);
 
         if (!$user) {
-            return $this->json(ResponseTrait::errorResponse(self::$invalidUser));
+            return $this->json(
+                ResponseTrait::errorResponse(self::$invalidUser),
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         /** @var Serializer $serializer */
@@ -118,13 +161,19 @@ class UserController extends AbstractController
         $group = $entityManager->getRepository(Group::class)->findOneBy(['name' => $userGroup->getName()]);
 
         if (!$group) {
-            return $this->json(ResponseTrait::errorResponse(self::$invalidGroup));
+            return $this->json(
+                ResponseTrait::errorResponse(self::$invalidGroup),
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $user->removeGroup($group);
         $entityManager->flush();
 
-        return $this->json(ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT));
+        return $this->json(
+            ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT),
+            Response::HTTP_NO_CONTENT
+        );
     }
 
 }

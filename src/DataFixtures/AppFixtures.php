@@ -10,6 +10,12 @@ use Doctrine\Common\Persistence\ObjectManager;
 class AppFixtures extends Fixture
 {
     private const USER_REFERENCE = 'user';
+    private $faker;
+
+    public function __construct()
+    {
+        $this->faker = \Faker\Factory::create();
+    }
 
     public function load(ObjectManager $manager)
     {
@@ -23,7 +29,7 @@ class AppFixtures extends Fixture
     private function loadUser(ObjectManager $manager): void
     {
         $user = new User();
-        $user->setName('username');
+        $user->setName($this->faker->name);
 
         $manager->persist($user);
         $manager->flush();
@@ -37,7 +43,7 @@ class AppFixtures extends Fixture
     private function loadGroup(ObjectManager $manager): void
     {
         $group = new Group();
-        $group->setName('Technology');
+        $group->setName($this->faker->word);
         $group->addUser($this->getReference(self::USER_REFERENCE));
 
         $manager->persist($group);
