@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Traits\ResponseTrait;
+use App\Services\ResponseService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -26,6 +26,6 @@ class IndexController extends AbstractController
             ]
         ];
 
-        return $this->json(ResponseTrait::successResponse($data));
+        return $this->json(ResponseService::successResponse($data));
     }
 }

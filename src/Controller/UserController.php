@@ -5,7 +5,7 @@ namespace App\Controller;
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Group;
 use App\Entity\User;
-use App\Traits\ResponseTrait;
+use App\Services\ResponseService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +35,7 @@ class UserController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $user = $entityManager->getRepository(User::class)->findAll();
 
-        return $this->json(ResponseTrait::successResponse($user));
+        return $this->json(ResponseService::successResponse($user));
     }
 
     /**
@@ -49,7 +49,7 @@ class UserController extends AbstractController
 
         if (!$requestBody) {
             return $this->json(
-                ResponseTrait::errorResponse(self::$invalidUser),
+                ResponseService::errorResponse(self::$invalidUser),
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -62,7 +62,7 @@ class UserController extends AbstractController
         $entityManager->flush();
 
         return $this->json(
-            ResponseTrait::successResponse($users, Response::HTTP_CREATED),
+            ResponseService::successResponse($users, Response::HTTP_CREATED),
             Response::HTTP_CREATED
         );
     }
@@ -77,7 +77,7 @@ class UserController extends AbstractController
 
         if (!$user) {
             return $this->json(
-                ResponseTrait::errorResponse(self::$invalidUser),
+                ResponseService::errorResponse(self::$invalidUser),
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -86,7 +86,7 @@ class UserController extends AbstractController
         $entityManager->flush();
 
         return $this->json(
-            ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT),
+            ResponseService::successResponse(null, Response::HTTP_NO_CONTENT),
             Response::HTTP_NO_CONTENT
         );
     }
@@ -102,14 +102,14 @@ class UserController extends AbstractController
 
         if (!$user) {
             return $this->json(
-                ResponseTrait::errorResponse(self::$invalidUser),
+                ResponseService::errorResponse(self::$invalidUser),
                 Response::HTTP_BAD_REQUEST
             );
         }
 
         if (!$responseBody) {
             return $this->json(
-                ResponseTrait::errorResponse(self::$invalidGroup),
+                ResponseService::errorResponse(self::$invalidGroup),
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -121,7 +121,7 @@ class UserController extends AbstractController
 
         if (!$group) {
             return $this->json(
-                ResponseTrait::errorResponse(self::$invalidGroup),
+                ResponseService::errorResponse(self::$invalidGroup),
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -130,7 +130,7 @@ class UserController extends AbstractController
         $entityManager->flush();
 
         return $this->json(
-            ResponseTrait::successResponse($user, Response::HTTP_CREATED),
+            ResponseService::successResponse($user, Response::HTTP_CREATED),
             Response::HTTP_CREATED
         );
     }
@@ -150,7 +150,7 @@ class UserController extends AbstractController
 
         if (!$user) {
             return $this->json(
-                ResponseTrait::errorResponse(self::$invalidUser),
+                ResponseService::errorResponse(self::$invalidUser),
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -162,7 +162,7 @@ class UserController extends AbstractController
 
         if (!$group) {
             return $this->json(
-                ResponseTrait::errorResponse(self::$invalidGroup),
+                ResponseService::errorResponse(self::$invalidGroup),
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -171,7 +171,7 @@ class UserController extends AbstractController
         $entityManager->flush();
 
         return $this->json(
-            ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT),
+            ResponseService::successResponse(null, Response::HTTP_NO_CONTENT),
             Response::HTTP_NO_CONTENT
         );
     }

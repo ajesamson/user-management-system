@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Traits;
+namespace App\Services;
 
 use Symfony\Component\HttpFoundation\Response;
 
-trait ResponseTrait
+/**
+ * ResponseService formats API response content
+ */
+class ResponseService
 {
     /**
      * Composes a success response payload
@@ -27,8 +30,10 @@ trait ResponseTrait
      * @param int $code
      * @return array
      */
-    public static function errorResponse($message, $code = Response::HTTP_BAD_REQUEST): array
-    {
+    public static function errorResponse(
+        $message,
+        $code = Response::HTTP_BAD_REQUEST
+    ): array {
         return [
             'code' => $code,
             'status' => 'error',

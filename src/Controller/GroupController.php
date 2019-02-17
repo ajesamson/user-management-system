@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Group;
-use App\Traits\ResponseTrait;
+use App\Services\ResponseService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +35,7 @@ class GroupController extends AbstractController
         $groups = $entityManager->getRepository(Group::class)->findAll();
 
         return $this->json(
-            ResponseTrait::successResponse($groups)
+            ResponseService::successResponse($groups)
         );
     }
 
@@ -50,7 +50,7 @@ class GroupController extends AbstractController
 
         if (!$requestBody) {
             return $this->json(
-                ResponseTrait::errorResponse(self::$invalidGroup),
+                ResponseService::errorResponse(self::$invalidGroup),
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -63,7 +63,7 @@ class GroupController extends AbstractController
         $entityManager->flush();
 
         return $this->json(
-            ResponseTrait::successResponse($group, Response::HTTP_CREATED),
+            ResponseService::successResponse($group, Response::HTTP_CREATED),
             Response::HTTP_CREATED
         );
     }
@@ -78,14 +78,14 @@ class GroupController extends AbstractController
 
         if (!$group) {
             return $this->json(
-                ResponseTrait::errorResponse(self::$invalidGroup),
+                ResponseService::errorResponse(self::$invalidGroup),
                 Response::HTTP_BAD_REQUEST
             );
         }
 
         if (!$group->getUsers()->isEmpty()) {
             return $this->json(
-                ResponseTrait::errorResponse(self::$usersExist),
+                ResponseService::errorResponse(self::$usersExist),
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -94,7 +94,7 @@ class GroupController extends AbstractController
         $entityManager->flush();
 
         return $this->json(
-            ResponseTrait::successResponse(null, Response::HTTP_NO_CONTENT),
+            ResponseService::successResponse(null, Response::HTTP_NO_CONTENT),
             Response::HTTP_NO_CONTENT
         );
     }
