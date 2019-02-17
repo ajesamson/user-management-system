@@ -16,18 +16,15 @@ use Symfony\Component\Serializer\Serializer;
  */
 class GroupController extends AbstractController
 {
-    /**
-     * @var string
-     */
-    private static $invalidGroup = 'Invalid user group id';
+    private const INVALID_GROUP = 'Invalid user group id';
 
-    /**
-     * @var string
-     */
-    private static $usersExist = 'Group has existing user';
+    private const GROUP_ACTIVE = 'Group has existing user';
+
+    private const GROUP_DELETED = 'Group deleted successfully';
 
     /**
      * @Route("/", name="groups_index", methods={"GET"})
+     * Lists all groups
      */
     public function index()
     {
@@ -35,12 +32,16 @@ class GroupController extends AbstractController
         $groups = $entityManager->getRepository(Group::class)->findAll();
 
         return $this->json(
-            ResponseService::successResponse($groups)
+            ResponseService::getSuccessResponse($groups, null)
         );
     }
 
     /**
      * @Route("/add", name="groups_add", methods={"POST"})
+     * Adds a new group
+     * @param Request $request
+     * @param ValidatorInterface $validator
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function add(Request $request, ValidatorInterface $validator)
     {
@@ -50,12 +51,16 @@ class GroupController extends AbstractController
 
         if (!$requestBody) {
             return $this->json(
-                ResponseService::errorResponse(self::$invalidGroup),
+                ResponseService::getErrorResponse(self::INVALID_GROUP),
                 Response::HTTP_BAD_REQUEST
             );
         }
 
-        $group = $serializer->deserialize($request->getContent(), Group::class, 'json');
+        $group = $serializer->deserialize(
+            $request->getContent(),
+            Group::class,
+            'json'
+        );
         $validator->validate($group);
 
         $entityManager = $this->getDoctrine()->getManager();
@@ -63,13 +68,21 @@ class GroupController extends AbstractController
         $entityManager->flush();
 
         return $this->json(
-            ResponseService::successResponse($group, Response::HTTP_CREATED),
+            ResponseService::getSuccessResponse($group, Response::HTTP_CREATED),
             Response::HTTP_CREATED
         );
     }
 
     /**
-     * @Route("/{id}", name="groups_delete", methods={"DELETE"}, requirements={"id":"\d+"})
+     * @Route(
+     *     "/{id}",
+     *     name="groups_delete",
+     *     methods={"DELETE"},
+     *     requirements={"id":"\d+"}
+     * )
+     * Deletes a group with the specified route id parameter
+     * @param int $id
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function delete($id)
     {
@@ -78,14 +91,14 @@ class GroupController extends AbstractController
 
         if (!$group) {
             return $this->json(
-                ResponseService::errorResponse(self::$invalidGroup),
+                ResponseService::getErrorResponse(self::INVALID_GROUP),
                 Response::HTTP_BAD_REQUEST
             );
         }
 
         if (!$group->getUsers()->isEmpty()) {
             return $this->json(
-                ResponseService::errorResponse(self::$usersExist),
+                ResponseService::getErrorResponse(self::GROUP_ACTIVE),
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -94,7 +107,11 @@ class GroupController extends AbstractController
         $entityManager->flush();
 
         return $this->json(
-            ResponseService::successResponse(null, Response::HTTP_NO_CONTENT),
+            ResponseService::getSuccessResponse(
+                null,
+                self::GROUP_DELETED,
+                Response::HTTP_NO_CONTENT
+            ),
             Response::HTTP_NO_CONTENT
         );
     }

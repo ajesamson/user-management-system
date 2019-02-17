@@ -10,27 +10,37 @@ use Symfony\Component\HttpFoundation\Response;
 class ResponseService
 {
     /**
-     * Composes a success response payload
-     * @param $data
+     * Formats success response
+     * @param object|array $data
      * @param int $code
+     * @param string $message
      * @return array
      */
-    public static function successResponse($data, $code = Response::HTTP_OK): array
-    {
-        return [
+    public static function getSuccessResponse(
+        $data,
+        $message,
+        $code = Response::HTTP_OK
+    ): array {
+        $responsePayload = [
             'code' => $code,
             'status' => 'success',
-            'data' => $data
+            'message' => $message ?? Response::$statusTexts[$code],
         ];
+
+        if (!empty($data)) {
+            $responsePayload['data'] = $data;
+        }
+
+        return $responsePayload;
     }
 
     /**
-     * Composes an error response payload
-     * @param $message
+     * Formats error response
+     * @param string|array $message
      * @param int $code
      * @return array
      */
-    public static function errorResponse(
+    public static function getErrorResponse(
         $message,
         $code = Response::HTTP_BAD_REQUEST
     ): array {

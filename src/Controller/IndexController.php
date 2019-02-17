@@ -26,6 +26,6 @@ class IndexController extends AbstractController
             ]
         ];
 
-        return $this->json(ResponseService::successResponse($data));
+        return $this->json(ResponseService::getSuccessResponse($data, null));
     }
 }
